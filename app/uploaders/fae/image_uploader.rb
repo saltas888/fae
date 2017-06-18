@@ -3,6 +3,7 @@ module Fae
   class ImageUploader < CarrierWave::Uploader::Base
     include CarrierWave::MimeTypes
     include CarrierWave::RMagick
+    storage :aws
 
     # saves file size to DB
     process :save_file_size_in_model
@@ -16,10 +17,14 @@ module Fae
 
     # Override the directory where uploaded files will be stored.
     # This is a sensible default for uploaders that are meant to be mounted:
-    def store_dir
-      "system/uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
-    end
+    # def store_dir
+    #   "system/uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
+    # end
 
+    def download_url(filename)
+      url(response_content_disposition: %Q{attachment; filename="#{filename}"})
+    end
+    
     version :thumb do
       process :resize_to_fill => [150,100]
     end
